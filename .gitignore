@@ -1,11 +1,11 @@
 
+experiments/analysis/out/
+
 venv/
 __pycache__/
 *.pyc
 experiments/analysis/out/*.csv
 backend/data/*.sqlite
-
-
 
 # Python
 __pycache__/
