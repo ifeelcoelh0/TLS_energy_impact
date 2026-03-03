@@ -20,3 +20,6 @@ log.json
 # OS
 .DS_Store
 Thumbs.db
+
+#token 
+token.txt
