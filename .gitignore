@@ -21,5 +21,6 @@ log.json
 .DS_Store
 Thumbs.db
 
-#token 
 token.txt
+.env
+*.env
