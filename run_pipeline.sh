@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-echo "Running simulator..."
-python simulator/simulator.py --runs-per-scenario 10 --messages-per-run 100 --payload-bytes 256
 
 echo "Exporting CSV..."
 python experiments/analysis/export_csv.py
