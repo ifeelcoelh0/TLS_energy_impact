@@ -25,6 +25,8 @@ class IngestMessage(BaseModel):
     planned_messages: int | None = Field(default=None, ge=1)
     notes: str | None = None
 
+    payload: str | None = None
+
 @router.post("/ingest")
 def ingest(msg: IngestMessage):
     if msg.total_bytes < msg.payload_bytes:
@@ -54,6 +56,13 @@ def ingest(msg: IngestMessage):
               run_id, ts, seq, payload_bytes, total_bytes, overhead_bytes,
               latency_ms, energy_mj
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(run_id, seq) DO UPDATE SET
+              ts=excluded.ts,
+              payload_bytes=excluded.payload_bytes,
+              total_bytes=excluded.total_bytes,
+              overhead_bytes=excluded.overhead_bytes,
+              latency_ms=excluded.latency_ms,
+              energy_mj=excluded.energy_mj
             """,
             (
                 msg.run_id, now, msg.seq, msg.payload_bytes, msg.total_bytes,

@@ -4,6 +4,9 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
+import numpy as np
+
+plt.style.use("seaborn-v0_8-whitegrid")
 
 DEFAULT_IN = Path("experiments/analysis/out/messages_with_run.csv")
 DEFAULT_OUT = Path("experiments/analysis/out/plots")
@@ -64,6 +67,11 @@ def main():
         runs_count=("run_id", "count")
     )
 
+    # calcular CI95
+    scenario_level["latency_ci95"] = 1.96 * (scenario_level["latency_std"] / np.sqrt(scenario_level["runs_count"]))
+    scenario_level["energy_ci95"] = 1.96 * (scenario_level["energy_std"] / np.sqrt(scenario_level["runs_count"]))
+    scenario_level["overhead_ci95"] = 1.96 * (scenario_level["overhead_std"] / np.sqrt(scenario_level["runs_count"]))
+
     scenario_level = scenario_level.loc[scenario_sort(scenario_level.index)]
 
     print("\nRun-level summary:")
@@ -76,23 +84,26 @@ def main():
         fig, ax = plt.subplots()
 
         means = scenario_level[metric_mean]
-        stds = scenario_level[metric_std]
+        errors = scenario_level[metric_std]
 
-        ax.bar(means.index, means, yerr=stds, capsize=5)
+        ax.bar(means.index, means, yerr=errors, capsize=5)
         ax.set_title(title)
         ax.set_ylabel(ylabel)
         ax.set_xlabel("Scenario")
         ax.grid(True, axis="y", linestyle=":")
+        ax.set_axisbelow(True)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
         fig.tight_layout()
         fig.savefig(out_dir / f"{filename}.png", dpi=200)
         fig.savefig(out_dir / f"{filename}.svg")
         plt.close(fig)
 
-    plot("latency_mean", "latency_std",
-         "Latency per scenario (mean ± std across runs)",
+    plot("latency_mean", "latency_ci95",
+         "Latency per scenario (mean ± 95% CI)",
          "Latency (ms)",
-         "latency_run_level")
+         "latency_ci95")
 
     plot("energy_mean", "energy_std",
          "Energy per scenario (mean ± std across runs)",
