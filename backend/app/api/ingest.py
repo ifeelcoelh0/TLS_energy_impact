@@ -1,10 +1,15 @@
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Response, status
+import os
+
+from fastapi import APIRouter, Header, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
 from ..db.session import get_conn
 
 router = APIRouter()
+
+API_KEY = os.getenv("TLS_ENERGY_API_KEY", "dev-secret-key")
+
 
 class IngestMessage(BaseModel):
     run_id: str
@@ -27,8 +32,15 @@ class IngestMessage(BaseModel):
 
     payload: str | None = None
 
+
 @router.post("/ingest", status_code=status.HTTP_204_NO_CONTENT)
-def ingest(msg: IngestMessage):
+def ingest(
+    msg: IngestMessage,
+    x_api_key: str | None = Header(default=None),
+):
+    if x_api_key != API_KEY:
+        raise HTTPException(status_code=401, detail="invalid API key")
+
     if msg.total_bytes < msg.payload_bytes:
         raise HTTPException(status_code=400, detail="total_bytes must be >= payload_bytes")
 
