@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
 from ..db.session import get_conn
@@ -27,7 +27,7 @@ class IngestMessage(BaseModel):
 
     payload: str | None = None
 
-@router.post("/ingest")
+@router.post("/ingest", status_code=status.HTTP_204_NO_CONTENT)
 def ingest(msg: IngestMessage):
     if msg.total_bytes < msg.payload_bytes:
         raise HTTPException(status_code=400, detail="total_bytes must be >= payload_bytes")
@@ -70,4 +70,4 @@ def ingest(msg: IngestMessage):
             ),
         )
 
-    return {"status": "stored", "overhead_bytes": overhead_bytes}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

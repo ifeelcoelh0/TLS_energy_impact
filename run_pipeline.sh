@@ -5,6 +5,9 @@ set -e
 echo "Exporting CSV..."
 python experiments/analysis/export_csv.py
 
+echo "Generating clean CSV..."
+python experiments/analysis/export_clean_csv.py
+
 echo "Sanity check..."
 python experiments/analysis/sanity_check.py
 
