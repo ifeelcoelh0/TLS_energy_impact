@@ -1,4 +1,10 @@
-
+# TLS certificates and keys
+certs/*.key
+certs/*.csr
+certs/*.srl
+certs/*.ext
+certs/*.pem
+certs/*.crt
 experiments/analysis/out/
 
 venv/
